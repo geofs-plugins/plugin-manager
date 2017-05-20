@@ -1,6 +1,6 @@
-chrome.webNavigation.onComitted.addListener(function(details) {
+chrome.webNavigation.onCommitted.addListener(function(details) {
 	if (~details.url.indexOf("http://www.geo-fs.com/geofs.php")) {
-		chrome.pageAction.show(details.tabId);
+		//chrome.pageAction.show(details.tabId);
 		chrome.storage.local.get(["installed_plugins"], function(data) {
 			var res = [];
 			for (var x in data["installed_plugins"]) if (data["installed_plugins"].hasOwnProperty(x)){
@@ -19,6 +19,6 @@ chrome.webNavigation.onComitted.addListener(function(details) {
 		});
 	}
 	else {
-		chrome.pageAction.hide(details.tabId);
+		//chrome.pageAction.hide(details.tabId);
 	}
 });
