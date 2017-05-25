@@ -68,41 +68,41 @@ chrome.webNavigation.onCommitted.addListener(function(details) {
 
 
 						//If the plugin is not installed or the version installed is not the latest and the code is actually where it's supposed to be
-						if(installed_plugin == null || parseInt(installed_plugin["last_modified"]) < parseInt(default_plugin["last_modified"]))
-						{
-							$.ajax(
-							{
-								url : default_plugin["url"] ,
-								type : "GET" ,
-								success : function(e)
-								{
-									var pluginId = default_plugin["id"];
-									var obj = {};
-									obj[pluginId] = e;
-									chrome.storage.local.set(obj);
-									default_plugin["is_enabled"] = true;
-									default_plugin["is_default"] = true;
-									default_plugin["plugin_url"] = "default";
-									var current_stored_data = [];
-									chrome.storage.local.get(["installed_plugin"] , function(data2)
-									{
-										current_stored_data = data2["installed_plugin"];
-									});
-									current_stored_data[current_stored_data.length] = default_plugin;
-									chrome.storage.local.set({"installed_plugins" : current_stored_data});
-									//TODO : Preserve the is_enabled status from before the update
-									//TODO : Fix this alert message
-									//TODO : Find a better way to notify the user.
-									// alert("An update is available , please reload Geo-Fs for the update to apply");
-								} ,
+						// if(installed_plugin == null || parseInt(installed_plugin["last_modified"]) < parseInt(default_plugin["last_modified"]))
+						// {
+						// 	$.ajax(
+						// 	{
+						// 		url : default_plugin["url"] ,
+						// 		type : "GET" ,
+						// 		success : function(e)
+						// 		{
+						// 			var pluginId = default_plugin["id"];
+						// 			var obj = {};
+						// 			obj[pluginId] = e;
+						// 			chrome.storage.local.set(obj);
+						// 			default_plugin["is_enabled"] = true;
+						// 			default_plugin["is_default"] = true;
+						// 			default_plugin["plugin_url"] = "default";
+						// 			var current_stored_data = [];
+						// 			chrome.storage.local.get(["installed_plugin"] , function(data2)
+						// 			{
+						// 				current_stored_data = data2["installed_plugin"];
+						// 			});
+						// 			current_stored_data[current_stored_data.length] = default_plugin;
+						// 			chrome.storage.local.set({"installed_plugins" : current_stored_data});
+						// 			//TODO : Preserve the is_enabled status from before the update
+						// 			//TODO : Fix this alert message
+						// 			//TODO : Find a better way to notify the user.
+						// 			// alert("An update is available , please reload Geo-Fs for the update to apply");
+						// 		} ,
 
-								error : function(jqXHR, exception)
-								{
-									//ERROR : Could not fetch plugin script
-									alert("An error occured while trying to fetch " + default_plugin["id"]);
-								}
-							});
-						}
+						// 		error : function(jqXHR, exception)
+						// 		{
+						// 			//ERROR : Could not fetch plugin script
+						// 			alert("An error occured while trying to fetch " + default_plugin["id"]);
+						// 		}
+						// 	});
+						// }
 					}
 				} ,
 
@@ -115,20 +115,3 @@ chrome.webNavigation.onCommitted.addListener(function(details) {
 		});
 	}
 });
-
-
-function getData(index)
-{
-	let content = "";
-	let status = false;
-	chrome.storage.local.get([index] , function(data){
-		status = true;
-		content = data;
-	});
-
-	if(! status){
-		return "";
-	} else {
-		return content;
-	}
-}
