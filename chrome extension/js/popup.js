@@ -1,3 +1,4 @@
+//Displaying a list of all of the installed plugins
 chrome.storage.local.get(["installed_plugins"] , function(data){
 	var installed_plugins = [];
 	try{installed_plugins = data["installed_plugins"];}catch(ex){}
@@ -9,6 +10,7 @@ chrome.storage.local.get(["installed_plugins"] , function(data){
 });
 
 
+//OnClick of the add plugin butotn
 $(document).on('click' , '#addPluginButton' , function(){
 	$.ajax({
 		url : $("#pluginUrl").val() ,
@@ -50,9 +52,28 @@ $(document).on('click' , '#addPluginButton' , function(){
 });
 
 
+//OnToggle event of the plugins
 $(document).on('click', '.tgl', function() {
 	set($(this)[0].id , $(this)[0].checked);
 });
+
+//OnRemove event plugin
+$(document).on('click' , '.removeButton' , function(){
+	var element = $(this)[0];
+	let pluginId = element.id.substring(12);
+	chrome.storage.local.get(["installed_plugins"] , function(data){
+		var newPluginArray = [];
+		var currentPluginArray = data["installed_plugins"];
+		for(var i = 0 ; i < currentPluginArray.length ; i++){
+			if(currentPluginArray[i]["id"] != pluginId){
+				newPluginArray[newPluginArray.length] = currentPluginArray[i];
+			}
+		}
+
+		chrome.storage.local.set({"installed_plugins" : newPluginArray});
+	});
+});
+
 
 function set(pluginId , enabled) {
 	chrome.storage.local.get(["installed_plugins"], function(data) {
@@ -82,5 +103,5 @@ function setNotice(innerText){
 }
 
 function createSwitch(id, name, toggled) {
-	$("#togglesDivtbl").append("<tr><td><b style='display: inline-block; float: left;'>" + name + "</b></td><td><label style='float: right' class='switch'><input class='tgl' type='checkbox' id='" + id + "'" + (toggled ? "checked" : "") + "><div class='slider round'></div></label></td></tr>");
+	$("#togglesDivtbl").append("<tr><td><b style='display: inline-block; float: left;'>" + name + "</b></td><td><label style='float: right' class='switch'><input class='tgl' type='checkbox' id='" + id + "'" + (toggled ? "checked" : "") + "><div class='slider round'></div></label></td><td><button class='removeButton' id='removeButton" + id + "'>Remove</button></td></tr>");
 }
