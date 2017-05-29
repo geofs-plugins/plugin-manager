@@ -12,12 +12,12 @@ chrome.storage.local.get(["installed_plugins"] , function(data){
 
 //OnClick of the add plugin butotn
 $(document).on('click' , '#addPluginButton' , function(){
+	let infoUrl = $("#pluginUrl").val();
 	$.ajax({
-		url : $("#pluginUrl").val() ,
+		url : infoUrl ,
 		method : "GET" ,
 		success : function(e){
-			alert("Url is available");
-			var data = JSON.parse(e);
+			var data = e;
 			var variables = [data["name"] , data["id"] , data["description"] , data["version"] , data["last_modified"] , data["url"]];
 			for(var i = 0 ; i < variables.length ; i++){
 				if(variables[i] == undefined || variables[i] == null || variables[i] == ""){
@@ -34,19 +34,23 @@ $(document).on('click' , '#addPluginButton' , function(){
 				"last_modified" : data["last_modified"] ,
 				"url" : data["url"] ,
 				"is_enabled" : true ,
-				"is_default" : false
+				"is_default" : false ,
+				"info_url" : infoUrl
 			};
 
 			chrome.storage.local.get(["installed_plugins"] , function(data){
 				var list = data["installed_plugins"];
 				list[list.length] = plugin;
 				chrome.storage.local.set({"installed_plugins" : list});
+
+				//TODO : Notify the user that the plugin has been installed
+				alert('Plugin installed !');
 			});
 
 		} ,
 
 		error : function(){
-			alert("Url is not available");
+			alert("Url not found");
 		}
 	});
 });
@@ -67,10 +71,21 @@ $(document).on('click' , '.removeButton' , function(){
 		for(var i = 0 ; i < currentPluginArray.length ; i++){
 			if(currentPluginArray[i]["id"] != pluginId){
 				newPluginArray[newPluginArray.length] = currentPluginArray[i];
+			} else {
+				if(currentPluginArray[i]["is_default"]){
+					//TODO : Notify the user that he cannot remove a default plugin
+					alert('You cannot remove a default plugin , only toggle it');
+					newPluginArray[newPluginArray.length] = currentPluginArray[i];
+				}
 			}
 		}
 
 		chrome.storage.local.set({"installed_plugins" : newPluginArray});
+
+		if(newPluginArray.length < currentPluginArray.length){
+			//TODO : Notify that the plugin has been removed
+			alert("Plugin has been removed");
+		}
 	});
 });
 
