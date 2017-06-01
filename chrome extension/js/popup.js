@@ -1,5 +1,5 @@
 //Displaying a list of all of the installed plugins
-chrome.storage.local.get(["installed_plugins"] , function(data){
+chrome.storage.local.get(["installed_plugins" , "dev_plugins" , "devMode"] , function(data){
 	var installed_plugins = [];
 	try{installed_plugins = data["installed_plugins"];}catch(ex){}
 
@@ -7,10 +7,32 @@ chrome.storage.local.get(["installed_plugins"] , function(data){
 		var plugin = installed_plugins[i];
 		createSwitch(plugin["id"] , plugin["name"] , plugin["is_enabled"]);
 	}
+
+	if(data["devMode"]){
+		toggleDevMode(true);
+		document.getElementById("devModeToggle").checked = true;
+		let dev_plugins = data["dev_plugins"];
+		for (var key in dev_plugins) {
+			if (dev_plugins.hasOwnProperty(key)) {
+				var plugin = dev_plugins[key];
+				createDevSwitch(plugin["name"] , plugin["is_enabled"]);
+			}
+		}
+	}
+
 });
 
+//Changes the notice message
+function setNotice(innerText){
+	$("#notice").html(innerText);
+}
 
-//OnClick of the add plugin butotn
+
+
+
+// ----------------------------- Plugins Functions -----------------------------
+
+//Called when adding a new plugin
 $(document).on('click' , '#addPluginButton' , function(){
 	let infoUrl = $("#pluginUrl").val();
 	$.ajax({
@@ -55,13 +77,12 @@ $(document).on('click' , '#addPluginButton' , function(){
 	});
 });
 
-
-//OnToggle event of the plugins
+//Called when a plugin is toggled
 $(document).on('click', '.tgl', function() {
 	set($(this)[0].id , $(this)[0].checked);
 });
 
-//OnRemove event plugin
+//Called when removing a plugin
 $(document).on('click' , '.removeButton' , function(){
 	var element = $(this)[0];
 	let pluginId = element.id.substring(12);
@@ -89,7 +110,7 @@ $(document).on('click' , '.removeButton' , function(){
 	});
 });
 
-
+//Toggles a plugins
 function set(pluginId , enabled) {
 	chrome.storage.local.get(["installed_plugins"], function(data) {
 		var installed_plugins = data["installed_plugins"];
@@ -105,7 +126,7 @@ function set(pluginId , enabled) {
 		if(plugin != null){
 			plugin.is_enabled = enabled;
 			chrome.storage.local.set({"installed_plugins": data["installed_plugins"]}, function() {
-				setNotice("Please refresh your GeoFS game to apply changes");
+				setNotice("<center style='color: red;'>Please refresh your GeoFS game to apply changes</center></br>");
 			});
 		}
 
@@ -113,10 +134,98 @@ function set(pluginId , enabled) {
 	});
 }
 
-function setNotice(innerText){
-	$("#notice").text(innerText);
-}
-
+//Creates a toggle for a plugin
 function createSwitch(id, name, toggled) {
 	$("#togglesDivtbl").append("<tr><td><b style='display: inline-block; float: left;'>" + name + "</b></td><td><label style='float: right' class='switch'><input class='tgl' type='checkbox' id='" + id + "'" + (toggled ? "checked" : "") + "><div class='slider round'></div></label></td><td><button class='removeButton' id='removeButton" + id + "'>Remove</button></td></tr>");
 }
+
+
+
+
+// ----------------------------- Dev Mode Functions -----------------------------
+
+
+//Called when adding a new developer mode plugin
+$(document).on('click' , '.addDevPlugin' , function(){
+	let name = document.getElementById('devPluginName').value;
+	let path = document.getElementById('devPluginFile').value;
+
+	chrome.storage.local.get(["dev_plugins"] , function(data){
+		let dev_plugins = data["dev_plugins"];
+		if(dev_plugins == undefined || dev_plugins == null ){
+			dev_plugins = {};
+		}
+		dev_plugins[name] = {"path" : path , "is_enabled" : true , "name" : name};
+		chrome.storage.local.set({"dev_plugins" : dev_plugins});
+	});
+
+});
+
+//Toggles dev mode
+function toggleDevMode(state){
+	var devModeDiv = document.getElementById('devModeDiv');
+	var isDev = state;
+	chrome.storage.local.set({"devMode" : isDev});
+
+	if(isDev){
+
+		//Show dev mode
+		var devModeHtml = "<table>";
+		devModeHtml += "<tr width='100%'><td width='100%' align='center'><table id='devTogglesDivtbl' style='width: 80%;'></table><br/><hr></td></tr>";
+		devModeHtml += "<tr><td> Name : <input type='text' id='devPluginName'></br> </tr></td>";
+		devModeHtml += "<tr><td>Code file : <input type='text' id='devPluginFile'></br></td></tr>";
+		devModeHtml += "<tr><td align='center'><input class='addDevPlugin' type='button' value='Add' id='addDevPlugin'></td></tr></table>";
+
+		devModeDiv.innerHTML = devModeHtml;
+	} else {
+
+		devModeDiv.innerHTML = "";
+	}
+}
+
+//Called when toggling dev mode plugin
+$(document).on('click' , '.devModeToggle' , function(){
+	let state = $(this)[0].checked;
+	let name = $(this)[0].id;
+	toggleDevMode(state);
+	chrome.storage.local.get(["dev_plugins"] , function(data){
+		let plugins_list = data["dev_plugins"];
+		plugins_list[name]["is_enabled"] = state;
+		chrome.storage.local.get({"dev_plugins" : plugins_list});
+	});
+});
+
+//Creates a dev mode plugin toggle
+function createDevSwitch(name , toggled){
+	$("#devTogglesDivtbl").append("<tr><td><b style='display: inline-block; float: left;'>" + name + "</b></td><td><label style='float: right' class='switch'><input class='devTgl' type='checkbox' id='" + name + "'" + (toggled ? "checked" : "") + "><div class='slider round'></div></label></td><td><button class='devRemoveButton' id='devRemoveButton" + name + "'>Remove</button></td></tr>");
+}
+
+$(document).on('click' , '.devRemoveButton' , function(){
+	let name = $(this)[0].id.substring(15);
+	chrome.storage.local.get(["dev_plugins"] , function(data){
+		let dict = data["dev_plugins"];
+		delete dict[name];
+		console.log(dict);
+		chrome.storage.local.set({"dev_plugins" : dict});
+	});
+});
+
+//Called when toggling a dev mode plugin
+$(document).on('click' , '.devTgl' , function(){
+		let name = $(this)[0].id;
+		let state = $(this)[0].checked;
+		chrome.storage.local.get(["dev_plugins"] , function(data){
+			let dev_plugins = data["dev_plugins"];
+			for(var plugin in dev_plugins){
+				if(dev_plugins.hasOwnProperty(plugin)){
+					if(dev_plugins[plugin]["name"] == name){
+						dev_plugins[plugin]["is_enabled"] = state;
+					}
+				} else {
+					alert("What ?");
+				}
+			}
+
+			chrome.storage.local.set({"dev_plugins" : dev_plugins});
+		});
+});

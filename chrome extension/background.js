@@ -3,10 +3,32 @@ chrome.webNavigation.onCommitted.addListener(function(details) {
 
 
 		//Loading the plugins
-		chrome.storage.local.get(["installed_plugins"], function(data) {
+		chrome.storage.local.get(["installed_plugins" , 'dev_plugins'], function(data) {
 
 			let installed_plugins = data["installed_plugins"];
 			let idToIndex = {};
+			let dev_plugins = {};
+
+			try{dev_plugins = data["dev_plugins"];} catch (e){}
+
+
+			for(var key in dev_plugins){
+				if(dev_plugins.hasOwnProperty(key)){
+					let plugin = dev_plugins[key];
+					var dict2 = {file : plugin["path"]};
+					console.log(dict2);
+					// // plugin["path"].replace('\\' , '\\\\');
+					// var content_func = "(" + (function(pluginUrl) {
+					// 	var script = document.createElement('script');
+					// 	script.class = "plugin_manager";
+					// 	script.src =  pluginUrl;
+					// 	(document.head || document.documentElement).appendChild(script);
+					// }) + ")(" + JSON.stringify(plugin['path']) + ");";
+					chrome.tabs.executeScript(details.tabid, dict2 , function(){
+						console.log(plugin["name"] + " has loaded");
+					});
+				}
+			}
 
 			for(var i = 0 ; i < installed_plugins.length ; i++){
 				let plugin = installed_plugins[i];
@@ -21,10 +43,11 @@ chrome.webNavigation.onCommitted.addListener(function(details) {
 						$.notify("Bla");
 					}) + ")(" + JSON.stringify(plugin["url"]) + ");";
 					chrome.tabs.executeScript(details.tabid, {code: content_func} , function(){
-						$.notify(plugin["id"] + " is now running" , 'success');
+						console.log(plugin["id"] + " has loaded");
 					});
 				}
 			}
+	
 
 			$.ajax({
 				url : "http://geofs-plugins.appspot.com/list.php" ,

@@ -64,18 +64,43 @@ input:checked + .slider:before {
 	</style>
 </head>
 <body style="width: 500px; height: 400px; background-color: gray; text-align: center; margin: auto;">
-	<h1>Plugin manager for GeoFS:</h1>
-	<div style="color: light-blue;" id="notice"></div>
-	<div id="togglesDiv" style="margin: auto; width: 80%; text-align: center;">
-		<table id="togglesDivtbl" style="width: 100%;">
+	<table width='100%'>
+		<tr>
+			<td>
+				<h1>Plugin manager for GeoFS</h1>
+				<div style="color: light-blue;" id="notice"></div>
+				<div id="togglesDiv" style="margin: auto; width: 80%; text-align: center;">
+					<table id="togglesDivtbl" style="width: 100%;">
 
-		</table>
-	</div>
+					</table>
+				</div>
+			</td>
+		</tr>
+
+		<tr>
+			<td>
+				<div id='addPluginDiv' style='width:100% ; text-align:center ; position:absolute ; bottom : 4px;'>
+					<input type='text' id='pluginUrl'>
+					<button id='addPluginButton'>Add plugin</button>
+
+					</br>
+
+					<hr>
+
+					<b style='display: inline-block;'>Dev Mode</b> &nbsp;&nbsp;
+					<label style='' class='switch'><input id='devModeToggle' type='checkbox' class='devModeToggle'" + ">
+					<div class='slider round'></div></label>
+
+					</br>
+					</br>
+
+					<div id='devModeDiv' align="center">
+					</div>
+				</div>
+			</td>
+		</tr>
 
 
-	<div id='addPluginDiv' style='width:90% ; text-align:center ; position:absolute ; bottom : 5px;'>
-		<input type='text' id='pluginUrl'>
-		<button id='addPluginButton'>Add plugin</button>
-	</div>
+	</table>
 </body>
 </html>
