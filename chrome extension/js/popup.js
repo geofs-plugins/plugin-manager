@@ -59,39 +59,6 @@ $(document).on('click' , '#addPluginButton' , function(){
 				"is_default" : false ,
 				"info_url" : infoUrl
 			};
-
-			chrome.storage.local.get(["installed_plugins" , "saved_plugins"] , function(data){
-
-				$.ajax({
-					url : plugin["url"] ,
-					method : "GET" ,
-					success : function(plugin_data){
-
-						try{
-							var saved_plugins = data["saved_plugins"];
-							if(saved_plugins == undefined || saved_plugins == null){
-								saved_plugins = {};
-							}
-
-							saved_plugins[plugin["id"]] = plugin_data;
-
-
-							var list = data["installed_plugins"];
-							list[list.length] = plugin;
-							chrome.storage.local.set({"installed_plugins" : list});
-
-						} catch (e) {
-							//TODO : Notify that the plugin could not be installed
-						}
-
-					}
-				});
-
-
-				//TODO : Notify the user that the plugin has been installed
-				alert('Plugin installed !');
-			});
-
 		} ,
 
 		error : function(){
