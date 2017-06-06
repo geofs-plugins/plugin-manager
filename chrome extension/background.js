@@ -12,68 +12,63 @@ chrome.webNavigation.onCommitted.addListener(function(details) {
 			try{dev_plugins = data["dev_plugins"];} catch (e){}
 
 
+			//Executing dev mode plugins
 			for(var key in dev_plugins){
 				if(dev_plugins.hasOwnProperty(key)){
 					let plugin = dev_plugins[key];
-					var dict2 = {file : plugin["path"]};
-					console.log(dict2);
-					// // plugin["path"].replace('\\' , '\\\\');
-					// var content_func = "(" + (function(pluginUrl) {
-					// 	var script = document.createElement('script');
-					// 	script.class = "plugin_manager";
-					// 	script.src =  pluginUrl;
-					// 	(document.head || document.documentElement).appendChild(script);
-					// }) + ")(" + JSON.stringify(plugin['path']) + ");";
-					chrome.tabs.executeScript(details.tabid, dict2 , function(){
-						console.log(plugin["name"] + " has loaded");
-					});
+					//TODO : Execute the plugin saved on the local machine
 				}
 			}
 
+			//Executing all of the saved plugins
 			for(var i = 0 ; i < installed_plugins.length ; i++){
 				let plugin = installed_plugins[i];
 				idToIndex[plugin["id"]] = i;
 
-				//TODO : Save the plugins content into a string that yotam will execute
-
 				let plugin_content = data["saved_plugins"][plugin["id"]];
 				if(plugin_content != undefined && plugin_content != null){
-					//TODO : Yotam - Execute the code in plugin_content
+
+					if(plugin["is_enabled"]){
+						var content_func = "(" + (function(pluginUrl) {
+							var script = document.createElement('script');
+							script.id = "plugin_manager";
+							script.innerHTML =  pluginUrl;
+							(document.head || document.documentElement).appendChild(script);
+						}) + ")(" + JSON.stringify(plugin_content) + ");";
+						chrome.tabs.executeScript(details.tabid, {code: content_func} , function(){
+							console.log(plugin["name"] + " is running");
+						});
+					}
 				}
-
-
-				// //The old method of executing code
-				// //Does not save the plugin locally
-				// if(plugin["is_enabled"]){
-				// 	var content_func = "(" + (function(pluginUrl , pluginId) {
-				// 		var script = document.createElement('script');
-				// 		script.id = "plugin_manager";
-				// 		script.src =  pluginUrl;
-				// 		(document.head || document.documentElement).appendChild(script);
-				// 		$.notify("Bla");
-				// 	}) + ")(" + JSON.stringify(plugin["url"]) + ");";
-				// 	chrome.tabs.executeScript(details.tabid, {code: content_func} , function(){
-				// 		console.log(plugin["name"] + " is running");
-				// 	});
-				// }
 			}
 
+
+
+			// ------------------------------ AUTO UPDATER ------------------------------
+
+			
+			let newPluginsList = [];
+			let newSavedPlugins = {};
+			
+			//Going over the list of community installed plugins
+			//And adding them to the final list
+			for(var i = 0 ; i < installed_plugins.length ; i++){
+				if(!installed_plugins[i]["is_default"]){
+					newPluginsList[newPluginsList.length] = installed_plugins[i];
+				}
+			}
+
+
+			//Remote plugins
 			$.ajax({
 				url : "http://geofs-plugins.appspot.com/list.php" ,
 				method : "GET" ,
 
 				success : function(e){
-					let remoteData = JSON.parse(e);
-					let newPluginsList = [];
 
-					//Going over the list of community installed plugins
-					//And adding them to the final list
-					for(var i = 0 ; i < installed_plugins.length ; i++){
-						if(!installed_plugins[i]["is_default"]){
-							//TODO : Check for updates , somehow
-							newPluginsList[newPluginsList.length] = installed_plugins[i];
-						}
-					}
+
+					let remoteData = JSON.parse(e);
+
 
 
 					//Going over all of the remote data and adding them to list only after trying to update
