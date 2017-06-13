@@ -40,10 +40,13 @@ $(document).on('click' , '#addPluginButton' , function(){
 		method : "GET" ,
 		success : function(e){
 			var data = e;
+
+			//Making sure all of the required variables are found
 			var variables = [data["name"] , data["id"] , data["description"] , data["version"] , data["last_modified"] , data["url"]];
 			for(var i = 0 ; i < variables.length ; i++){
 				if(variables[i] == undefined || variables[i] == null || variables[i] == ""){
 					//TODO : Notify the user there is a problem with the plugin
+					alert("ERROR");
 					return;
 				}
 			}
@@ -59,6 +62,28 @@ $(document).on('click' , '#addPluginButton' , function(){
 				"is_default" : false ,
 				"info_url" : infoUrl
 			};
+
+
+			//Fetching and saving the plugin's content
+			chrome.storage.local.get(["installed_plugins" , "saved_plugins"] , function(data){
+				let installed_plugins = data["installed_plugins"];
+				let saved_plugins = data["saved_plugins"];
+
+				$.ajax({
+					url : plugin["url"] ,
+					method : "GET" , 
+					success : function(content){
+						saved_plugins[plugin["id"]] = content;
+						installed_plugins[installed_plugins.length] = plugin;
+						chrome.storage.local.set({"saved_plugins" : saved_plugins , "installed_plugins" : installed_plugins});
+						alert("Installed");
+						//TODO : Alert that the plugin has successfuly installed
+					} , 
+					error : function(){
+						//TODO : Notify that there is an error concerning the plugin configuration
+					}
+				});
+			});
 		} ,
 
 		error : function(){
