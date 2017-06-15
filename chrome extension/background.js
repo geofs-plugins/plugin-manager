@@ -1,7 +1,6 @@
-chrome.webNavigation.onCommitted.addListener(function(details) {
+chrome.webNavigation.onCompleted.addListener(function(details) {
 	if (~details.url.indexOf("http://www.geo-fs.com/geofs.php")) {
 
-		//Plugin execution
 		chrome.storage.local.get(["installed_plugins" , 'dev_plugins' , "saved_plugins"], function(data) {
 
 			let idToIndex = {};
@@ -18,7 +17,40 @@ chrome.webNavigation.onCommitted.addListener(function(details) {
 			for(var key in dev_plugins){
 				if(dev_plugins.hasOwnProperty(key)){
 					let plugin = dev_plugins[key];
-					//TODO : Execute the plugin saved on the local machine
+					if(plugin["is_enabled"]){
+						var xmlhttp;
+						if (window.XMLHttpRequest) {
+							xmlhttp = new XMLHttpRequest();
+						}
+						else {
+							xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+						}
+						xmlhttp.onreadystatechange = function () {
+							if (xmlhttp.readyState == 4) {
+								var content = xmlhttp.responseText;    //*here we get all lines from text file*
+
+								var content_func = "(" + (function(pluginUrl) {
+									var script = document.createElement('script');
+									script.id = "plugin_manager";
+									script.innerHTML =  pluginUrl;
+									(document.head || document.documentElement).appendChild(script);
+								}) + ")(" + JSON.stringify(content) + ");";
+								chrome.tabs.executeScript(details.tabid, {code: content_func} , function(){
+									if(chrome.runtime.lastError){
+										console.log("Oops");
+									} else {
+										console.log("STATUS-Dev :  " + plugin["name"] + " is running");
+									}
+								});
+
+							} else {
+								//TODO : Notify that an error occured
+							}
+						}
+
+						xmlhttp.open("GET", "file://" + plugin["path"] , true);
+						xmlhttp.send();
+					}
 				}
 			}
 
@@ -39,7 +71,11 @@ chrome.webNavigation.onCommitted.addListener(function(details) {
 							(document.head || document.documentElement).appendChild(script);
 						}) + ")(" + JSON.stringify(plugin_content) + ");";
 						chrome.tabs.executeScript(details.tabid, {code: content_func} , function(){
-							console.log("STATUS : " + plugin["name"] + " is running");
+							if(chrome.runtime.lastError){
+								console.log("Oops");
+							} else {
+								console.log("STATUS : " + plugin["name"] + " is running");
+							}
 						});
 					}
 				}

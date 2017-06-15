@@ -71,14 +71,14 @@ $(document).on('click' , '#addPluginButton' , function(){
 
 				$.ajax({
 					url : plugin["url"] ,
-					method : "GET" , 
+					method : "GET" ,
 					success : function(content){
 						saved_plugins[plugin["id"]] = content;
 						installed_plugins[installed_plugins.length] = plugin;
 						chrome.storage.local.set({"saved_plugins" : saved_plugins , "installed_plugins" : installed_plugins});
 						alert("Installed");
 						//TODO : Alert that the plugin has successfuly installed
-					} , 
+					} ,
 					error : function(){
 						//TODO : Notify that there is an error concerning the plugin configuration
 					}
@@ -101,7 +101,7 @@ $(document).on('click', '.tgl', function() {
 $(document).on('click' , '.removeButton' , function(){
 	var element = $(this)[0];
 	let pluginId = element.id.substring(12);
-	chrome.storage.local.get(["installed_plugins"] , function(data){
+	chrome.storage.local.get(["installed_plugins" , "saved_plugins"] , function(data){
 		var newPluginArray = [];
 		var currentPluginArray = data["installed_plugins"];
 		for(var i = 0 ; i < currentPluginArray.length ; i++){
@@ -116,10 +116,14 @@ $(document).on('click' , '.removeButton' , function(){
 			}
 		}
 
-		chrome.storage.local.set({"installed_plugins" : newPluginArray});
 
 		if(newPluginArray.length < currentPluginArray.length){
 			//TODO : Notify that the plugin has been removed
+			var savedPlugins = data["saved_plugins"];
+			if(savedPlugins != undefined && savedPlugins != null){
+				savedPlugin.delete(pluginId);
+			}
+			chrome.storage.local.set({"installed_plugins" : newPluginArray , "saved_plugins" : savedPlugins});
 			alert("Plugin has been removed");
 		}
 	});
@@ -215,6 +219,7 @@ function createDevSwitch(name , toggled){
 	$("#devTogglesDivtbl").append("<tr><td><b style='display: inline-block; float: left;'>" + name + "</b></td><td><label style='float: right' class='switch'><input class='devTgl' type='checkbox' id='" + name + "'" + (toggled ? "checked" : "") + "><div class='slider round'></div></label></td><td><button class='devRemoveButton' id='devRemoveButton" + name + "'>Remove</button></td></tr>");
 }
 
+///On remove dev plugin
 $(document).on('click' , '.devRemoveButton' , function(){
 	let name = $(this)[0].id.substring(15);
 	chrome.storage.local.get(["dev_plugins"] , function(data){

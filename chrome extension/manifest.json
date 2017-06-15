@@ -3,7 +3,7 @@
 
   "name": "SkyX plugin manager for GeoFS",
   "description": "A plugin manager for the GeoFS flight simulator, adding more planes, features and buildings to the game.",
-  "version": "1.0",
+  "version": "1.1",
   "icons": {
 	  "32": "image/logo_32.png"
   },
