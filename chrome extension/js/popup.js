@@ -11,13 +11,6 @@ chrome.storage.local.get(["installed_plugins" , "dev_plugins" , "devMode"] , fun
 	if(data["devMode"]){
 		toggleDevMode(true);
 		document.getElementById("devModeToggle").checked = true;
-		let dev_plugins = data["dev_plugins"];
-		for (var key in dev_plugins) {
-			if (dev_plugins.hasOwnProperty(key)) {
-				var plugin = dev_plugins[key];
-				createDevSwitch(plugin["name"] , plugin["is_enabled"]);
-			}
-		}
 	}
 
 });
@@ -196,8 +189,17 @@ function toggleDevMode(state){
 		devModeHtml += "<tr><td align='center'><input class='addDevPlugin' type='button' value='Add' id='addDevPlugin'></td></tr></table>";
 
 		devModeDiv.innerHTML = devModeHtml;
-	} else {
 
+		chrome.storage.local.get(["dev_plugins"] , function(data){
+			let dev_plugins = data["dev_plugins"];
+			for (var key in dev_plugins) {
+				if (dev_plugins.hasOwnProperty(key)) {
+					var plugin = dev_plugins[key];
+					createDevSwitch(plugin["name"] , plugin["is_enabled"]);
+				}
+			}
+		});
+	} else {
 		devModeDiv.innerHTML = "";
 	}
 }
