@@ -114,7 +114,7 @@ $(document).on('click' , '.removeButton' , function(){
 			//TODO : Notify that the plugin has been removed
 			var savedPlugins = data["saved_plugins"];
 			if(savedPlugins != undefined && savedPlugins != null){
-				savedPlugin.delete(pluginId);
+				delete savedPlugins[pluginId];
 			}
 			chrome.storage.local.set({"installed_plugins" : newPluginArray , "saved_plugins" : savedPlugins});
 			alert("Plugin has been removed");
