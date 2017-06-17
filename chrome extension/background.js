@@ -1,7 +1,7 @@
 chrome.webNavigation.onCompleted.addListener(function(details) {
 	if (~details.url.indexOf("http://www.geo-fs.com/geofs.php")) {
 
-		chrome.storage.local.get(["installed_plugins" , 'dev_plugins' , "saved_plugins"], function(data) {
+		chrome.storage.local.get(["installed_plugins" , 'dev_plugins' , "saved_plugins" , 'devMode'], function(data) {
 
 			let idToIndex = {};
 			let dev_plugins = {};
@@ -14,42 +14,44 @@ chrome.webNavigation.onCompleted.addListener(function(details) {
 
 
 			//Executing dev mode plugins
-			for(var key in dev_plugins){
-				if(dev_plugins.hasOwnProperty(key)){
-					let plugin = dev_plugins[key];
-					if(plugin["is_enabled"]){
-						var xmlhttp;
-						if (window.XMLHttpRequest) {
-							xmlhttp = new XMLHttpRequest();
-						}
-						else {
-							xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-						}
-						xmlhttp.onreadystatechange = function () {
-							if (xmlhttp.readyState == 4) {
-								var content = xmlhttp.responseText;    //*here we get all lines from text file*
-
-								var content_func = "(" + (function(pluginUrl) {
-									var script = document.createElement('script');
-									script.id = "plugin_manager";
-									script.innerHTML =  pluginUrl;
-									(document.head || document.documentElement).appendChild(script);
-								}) + ")(" + JSON.stringify(content) + ");";
-								chrome.tabs.executeScript(details.tabid, {code: content_func} , function(){
-									if(chrome.runtime.lastError){
-										console.log("Oops");
-									} else {
-										console.log("STATUS-Dev :  " + plugin["name"] + " is running");
-									}
-								});
-
-							} else {
-								//TODO : Notify that an error occured
+			if(data["devMode"]){
+				for(var key in dev_plugins){
+					if(dev_plugins.hasOwnProperty(key)){
+						let plugin = dev_plugins[key];
+						if(plugin["is_enabled"]){
+							var xmlhttp;
+							if (window.XMLHttpRequest) {
+								xmlhttp = new XMLHttpRequest();
 							}
-						}
+							else {
+								xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+							}
+							xmlhttp.onreadystatechange = function () {
+								if (xmlhttp.readyState == 4) {
+									var content = xmlhttp.responseText;    //*here we get all lines from text file*
 
-						xmlhttp.open("GET", "file://" + plugin["path"] , true);
-						xmlhttp.send();
+									var content_func = "(" + (function(pluginUrl) {
+										var script = document.createElement('script');
+										script.id = "plugin_manager";
+										script.innerHTML =  pluginUrl;
+										(document.head || document.documentElement).appendChild(script);
+									}) + ")(" + JSON.stringify(content) + ");";
+									chrome.tabs.executeScript(details.tabid, {code: content_func} , function(){
+										if(chrome.runtime.lastError){
+											console.log("Oops");
+										} else {
+											console.log("STATUS-Dev :  " + plugin["name"] + " is running");
+										}
+									});
+
+								} else {
+									//TODO : Notify that an error occured
+								}
+							}
+
+							xmlhttp.open("GET", "file://" + plugin["path"] , true);
+							xmlhttp.send();
+						}
 					}
 				}
 			}
