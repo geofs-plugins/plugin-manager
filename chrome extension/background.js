@@ -171,8 +171,18 @@ chrome.webNavigation.onCompleted.addListener(function(details) {
 										let saved_data = data4["saved_plugins"];
 										let current_plugins = data4["installed_plugins"];
 
-										saved_data[remotePlugin["id"]] = pluginContent;
+										//If it's the first run than saved_data and current_plugins are undefined
+										if(saved_data == undefined){
+											saved_data = {};
+										}
 
+										if(current_plugins == undefined){
+											current_plugins = [];
+										}
+
+
+										saved_data[remotePlugin["id"]] = pluginContent;
+										
 										var index = current_plugins.length;
 										for(var j = 0 ; j < current_plugins.length ; j++){
 											index = current_plugins[j]["id"] == remotePlugin["id"] ? j : index;
