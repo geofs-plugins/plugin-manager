@@ -1,7 +1,10 @@
 //Displaying a list of all of the installed plugins
 chrome.storage.local.get(["installed_plugins" , "dev_plugins" , "devMode"] , function(data){
-	var installed_plugins = [];
-	try{installed_plugins = data["installed_plugins"];}catch(ex){}
+	var installed_plugins = data["installed_plugins"];
+
+	if(installed_plugins == undefined){
+		installed_plugins = [];
+	}
 
 	for(var i = 0 ; i < installed_plugins.length ; i++){
 		var plugin = installed_plugins[i];
