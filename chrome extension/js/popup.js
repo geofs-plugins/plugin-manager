@@ -11,6 +11,10 @@ chrome.storage.local.get(["installed_plugins" , "dev_plugins" , "devMode"] , fun
 		createSwitch(plugin["id"] , plugin["name"] , plugin["is_enabled"]);
 	}
 
+	if(installed_plugins.length == 0){
+		setNotice("Please refresh GeoFS and then wait for the plugins to download !");
+	}
+
 	if(data["devMode"]){
 		toggleDevMode(true);
 		document.getElementById("devModeToggle").checked = true;
@@ -41,8 +45,7 @@ $(document).on('click' , '#addPluginButton' , function(){
 			var variables = [data["name"] , data["id"] , data["description"] , data["version"] , data["last_modified"] , data["url"]];
 			for(var i = 0 ; i < variables.length ; i++){
 				if(variables[i] == undefined || variables[i] == null || variables[i] == ""){
-					//TODO : Notify the user there is a problem with the plugin
-					alert("ERROR");
+					alert("Error : plugin structure is not valid");
 					return;
 				}
 			}
@@ -72,11 +75,10 @@ $(document).on('click' , '#addPluginButton' , function(){
 						saved_plugins[plugin["id"]] = content;
 						installed_plugins[installed_plugins.length] = plugin;
 						chrome.storage.local.set({"saved_plugins" : saved_plugins , "installed_plugins" : installed_plugins});
-						alert("Installed");
-						//TODO : Alert that the plugin has successfuly installed
+						alert("Plugin has been installed !");
 					} ,
 					error : function(){
-						//TODO : Notify that there is an error concerning the plugin configuration
+						alert("Error : Url not found");
 					}
 				});
 			});
@@ -101,20 +103,21 @@ $(document).on('click' , '.removeButton' , function(){
 		var newPluginArray = [];
 		var currentPluginArray = data["installed_plugins"];
 		for(var i = 0 ; i < currentPluginArray.length ; i++){
+			//Going over all of the plugins
+		
+			//If the plugin is not the selected plugin then add it to the list
 			if(currentPluginArray[i]["id"] != pluginId){
 				newPluginArray[newPluginArray.length] = currentPluginArray[i];
 			} else {
+				//If it is and is a default plugin , add it and notify the user that he can't do that
 				if(currentPluginArray[i]["is_default"]){
-					//TODO : Notify the user that he cannot remove a default plugin
 					alert('You cannot remove a default plugin , only toggle it');
 					newPluginArray[newPluginArray.length] = currentPluginArray[i];
 				}
 			}
 		}
 
-
 		if(newPluginArray.length < currentPluginArray.length){
-			//TODO : Notify that the plugin has been removed
 			var savedPlugins = data["saved_plugins"];
 			if(savedPlugins != undefined && savedPlugins != null){
 				delete savedPlugins[pluginId];
@@ -135,7 +138,6 @@ function set(pluginId , enabled) {
 			if(installed_plugins[i].id == pluginId){
 				plugin = installed_plugins[i];
 			}
-			//TODO : Check for dupes.
 		}
 
 		if(plugin != null){
@@ -144,8 +146,6 @@ function set(pluginId , enabled) {
 				setNotice("<center style='color: red;'>Please refresh your GeoFS game to apply changes</center></br>");
 			});
 		}
-
-		//TODO : Check if plugin is null
 	});
 }
 
