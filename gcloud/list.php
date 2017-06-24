@@ -1,4 +1,5 @@
 <?
+header("Access-Control-Allow-Origin: *");
 $files = glob('gs://plugins-bucket/plugins/*.{meta}', GLOB_BRACE);
 $res = "[";
 $i = true;

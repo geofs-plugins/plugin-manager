@@ -1,5 +1,25 @@
 chrome.webNavigation.onCompleted.addListener(function(details) {
+	
+	function notify(txt, type) {
+		chrome.tabs.executeScript(details.tabId, {code: "(" + (function(e) {
+			var scr = "(" + (function(x, y) {
+				alertify.notify(x, y);
+			}).toString() + ")(" + JSON.stringify(e.text) + ", " + JSON.stringify(e.type) + ")";
+			var el = document.createElement("script");
+			el.innerText = scr;
+			document.documentElement.appendChild(el);
+		}).toString() + ")(" + JSON.stringify({text: txt, type: type || "message"}) + ")"});
+	}
+	
+	
 	if (~details.url.indexOf("http://www.geo-fs.com/geofs.php")) {
+
+		chrome.tabs.insertCSS(details.tabId, {file: "alertify/css1.css"});
+		chrome.tabs.insertCSS(details.tabId, {file: "alertify/css4.css"});
+		chrome.tabs.insertCSS(details.tabId, {file: "alertify/css3.css"});
+		chrome.tabs.insertCSS(details.tabId, {file: "alertify/css2.css"});
+		chrome.tabs.executeScript(details.tabId, {file: "alertify/script.js"});
+		
 
 		chrome.storage.local.get(["installed_plugins" , 'dev_plugins' , "saved_plugins" , 'devMode'], function(data) {
 
@@ -36,11 +56,11 @@ chrome.webNavigation.onCompleted.addListener(function(details) {
 										script.innerHTML =  pluginUrl;
 										(document.head || document.documentElement).appendChild(script);
 									}) + ")(" + JSON.stringify(content) + ");";
-									chrome.tabs.executeScript(details.tabid, {code: content_func} , function(){
+									chrome.tabs.executeScript(details.tabId, {code: content_func} , function(){
 										if(chrome.runtime.lastError){
-											console.log("Oops");
+											notify("Error when running plugin " + plugin["name"], "error");
 										} else {
-											console.log("STATUS-Dev :  " + plugin["name"] + " is running");
+											notify("[Dev] " + plugin["name"] + " is running", "success");
 										}
 									});
 
@@ -72,11 +92,11 @@ chrome.webNavigation.onCompleted.addListener(function(details) {
 							script.innerHTML =  pluginUrl;
 							(document.head || document.documentElement).appendChild(script);
 						}) + ")(" + JSON.stringify(plugin_content) + ");";
-						chrome.tabs.executeScript(details.tabid, {code: content_func} , function(){
+						chrome.tabs.executeScript(details.tabId, {code: content_func} , function(){
 							if(chrome.runtime.lastError){
-								console.log("Oops");
+								notify("Error when running plugin " + plugin["name"], "error");
 							} else {
-								console.log("STATUS : " + plugin["name"] + " is running");
+								notify(plugin["name"] + " is running", "success");
 							}
 						});
 					}
@@ -128,7 +148,7 @@ chrome.webNavigation.onCompleted.addListener(function(details) {
 
 											chrome.storage.local.set({"saved_plugins" : current_saved , "installed_plugins" : current_plugins});
 
-											console.log("STATUS : Updated community " + remotePlugin["id"])
+											notify("Updated community " + remotePlugin["id"], "success");
 										});
 									} ,
 									error : function(){
@@ -192,7 +212,7 @@ chrome.webNavigation.onCompleted.addListener(function(details) {
 
 										chrome.storage.local.set({"saved_plugins" : saved_data , "installed_plugins" : current_plugins});
 
-										console.log("STATUS : Updated " + remotePlugin["id"]);
+										notify("STATUS : Updated " + remotePlugin["id"] + "<br/><strong>To use the updated version please refresh your page.</strong>", "success");
 									});
 								} ,
 								error : function(){

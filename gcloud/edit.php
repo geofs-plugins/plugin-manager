@@ -1,4 +1,6 @@
 <?
+header("Access-Control-Allow-Origin: *");
+
 $status = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($_POST["fcontent"] == "") {
