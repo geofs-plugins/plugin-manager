@@ -95,8 +95,6 @@ chrome.webNavigation.onCompleted.addListener(function(details) {
 						chrome.tabs.executeScript(details.tabId, {code: content_func} , function(){
 							if(chrome.runtime.lastError){
 								notify("Error when running plugin " + plugin["name"], "error");
-							} else {
-								notify(plugin["name"] + " is running", "success");
 							}
 						});
 					}
@@ -141,18 +139,17 @@ chrome.webNavigation.onCompleted.addListener(function(details) {
 											}
 
 											//If the plugin's id was changed
-											//TODO : write this better
 											if(!wasChanged){
 												current_plugins[current_plugins.length] = remotePlugin;
 											}
 
 											chrome.storage.local.set({"saved_plugins" : current_saved , "installed_plugins" : current_plugins});
 
-											notify("Updated community " + remotePlugin["id"], "success");
+											notify("An update is available to " + remotePlugin["id"] + " , please refresh for the update to apply", "success");
 										});
 									} ,
 									error : function(){
-										//TODO : Notify the user there is an error
+										notify("An error occured while trying to update " + remotePlugin["name"] , 'error');
 									}
 								});
 							}
@@ -212,11 +209,11 @@ chrome.webNavigation.onCompleted.addListener(function(details) {
 
 										chrome.storage.local.set({"saved_plugins" : saved_data , "installed_plugins" : current_plugins});
 
-										notify("STATUS : Updated " + remotePlugin["id"] + "<br/><strong>To use the updated version please refresh your page.</strong>", "success");
+										notify("An update is available to " + remotePlugin["id"] + " , please refresh for the update to apply", "success");
 									});
 								} ,
 								error : function(){
-									//TODO : Nofity that there is an error
+									notify("An error occured while trying to update " + remotePlugin["name"] , 'error');
 								}
 							});
 						}
@@ -226,7 +223,7 @@ chrome.webNavigation.onCompleted.addListener(function(details) {
 				}
 				,
 				error : function(){
-					//TODO : Nofity that an error occured while ajaxing
+					notify("The SkyX default plugins server is down !" , 'error');
 				}
 			});
 		});
