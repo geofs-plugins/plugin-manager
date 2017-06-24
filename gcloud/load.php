@@ -1,4 +1,5 @@
 <?
+header("Access-Control-Allow-Origin: *");
 header("Content-Type: plain/text");
 $ext = explode(",", $_GET["ids"]);
 $res = "";

@@ -8,6 +8,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     try {
         file_put_contents("gs://plugins-bucket/plugins/" . $_POST["file"], trim($_POST["fcontent"]));
+        file_put_contents("gs://plugins-bucket/plugins/" . $_POST["file"] . ".time", time());
         $status = "saved on " . time();
     }
     catch (Exception $e) {
