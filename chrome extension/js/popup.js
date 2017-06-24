@@ -12,7 +12,7 @@ chrome.storage.local.get(["installed_plugins" , "dev_plugins" , "devMode"] , fun
 	}
 
 	if(installed_plugins.length == 0){
-		setNotice("Please refresh GeoFS and then wait for the plugins to download !");
+		setNotice("Please wait for GeoFS plugins to load ! </br> try refreshing if it doesn't work !");
 	}
 
 	if(data["devMode"]){
@@ -85,7 +85,7 @@ $(document).on('click' , '#addPluginButton' , function(){
 		} ,
 
 		error : function(){
-			alert("Url not found");
+			alert("Error : Url not found");
 		}
 	});
 });
@@ -172,6 +172,7 @@ $(document).on('click' , '.addDevPlugin' , function(){
 		}
 		dev_plugins[name] = {"path" : path , "is_enabled" : true , "name" : name};
 		chrome.storage.local.set({"dev_plugins" : dev_plugins});
+		alert("Developer plugin added !");		
 	});
 
 });
@@ -207,7 +208,7 @@ function toggleDevMode(state){
 	}
 }
 
-//Called when toggling dev mode plugin
+//Called when toggling dev mode
 $(document).on('click' , '.devModeToggle' , function(){
 	let state = $(this)[0].checked;
 	let name = $(this)[0].id;
@@ -232,6 +233,7 @@ $(document).on('click' , '.devRemoveButton' , function(){
 		delete dict[name];
 		console.log(dict);
 		chrome.storage.local.set({"dev_plugins" : dict});
+		alert("Plugin has been removed !");
 	});
 });
 
