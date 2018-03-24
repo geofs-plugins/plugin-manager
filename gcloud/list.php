@@ -16,7 +16,7 @@ foreach($files as $file) {
     {
         $j->last_modified = filemtime($file);
     }
-    $j->url = "http://geofs-plugins.appspot.com/load.php?ids=" . $j->id;
+    $j->url = "https://geofs-plugins.appspot.com/load.php?ids=" . $j->id;
     $res .= json_encode($j);
 }
 $res .= "]";

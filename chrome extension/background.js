@@ -12,7 +12,7 @@ chrome.webNavigation.onCompleted.addListener(function(details) {
 	}
 	
 	
-	if (~details.url.indexOf("http://www.geo-fs.com/geofs.php")) {
+	if (~details.url.indexOf("https://www.geo-fs.com/geofs.php")) {
 
 		chrome.tabs.insertCSS(details.tabId, {file: "alertify/css1.css"});
 		chrome.tabs.insertCSS(details.tabId, {file: "alertify/css4.css"});
@@ -161,7 +161,7 @@ chrome.webNavigation.onCompleted.addListener(function(details) {
 
 			//Auto updater - Default plugins
 			$.ajax({
-				url : "http://geofs-plugins.appspot.com/list.php" ,
+				url : "https://geofs-plugins.appspot.com/list.php" ,
 				method : "GET" ,
 				success : function(data2){
 					let list = JSON.parse(data2);
