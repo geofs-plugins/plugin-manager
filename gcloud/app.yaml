@@ -1,6 +1,11 @@
 runtime: php55
 api_version: 1
-
+instance_class: F1
+automatic_scaling:
+  min_idle_instances: 1
+  max_idle_instances: 1  # default value
+  min_pending_latency: 10s  # default value
+  max_pending_latency: 15s
 handlers:
 - url: /static
   static_dir: static_files
